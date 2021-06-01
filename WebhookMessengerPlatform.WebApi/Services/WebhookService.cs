@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,13 +15,16 @@ namespace WebhookMessengerPlatform.WebApi.Services
     public class WebhookService : IWebhookService
     {
         private readonly string appSecret;
+        private readonly string appToken;
+        private readonly HttpClient _httpClient = new HttpClient();
 
         public WebhookService(IConfiguration config)
         {
             appSecret = config.GetValue<string>("Security:appSecret");
+            appToken = config.GetValue<string>("Security:appToken");
         }
 
-        public void ServiceTemp(dynamic data)
+        public async Task StoreData(dynamic data)
         {
             try
             {
@@ -30,12 +36,35 @@ namespace WebhookMessengerPlatform.WebApi.Services
                 };
 
                 model.MessageDate = DateTimeOffset.FromUnixTimeMilliseconds(data.entry[0].time);
+
+                if(model != null)
+                {
+                    await SendMessages(model);
+                }
             }
             catch (Exception)
             {
 
                 throw;
             }
+        }
+
+        private async Task SendMessages(MessengerRequestMessage model)
+        {
+            var response = new MessengerResponseModel()
+            {
+                recipient = new MessengerResponseModel.Recipient()
+                {
+                    id = model.SenderId
+                },
+                message = new MessengerResponseModel.Message()
+                {
+                    text = model.Message
+                },
+                messaging_type = "RESPONSE"
+            };
+
+            await _httpClient.PostAsJsonAsync($"https://graph.facebook.com/v10.0/me/messages?access_token=" + appToken, response );
         }
 
         public string CalculateSignature(string payload)

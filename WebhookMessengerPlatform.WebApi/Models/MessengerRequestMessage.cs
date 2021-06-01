@@ -9,7 +9,7 @@ namespace WebhookMessengerPlatform.WebApi.Models
     {
         public int Id { get; set; }
         public string Message { get; set; }
-        public int SenderId { get; set; }
+        public string SenderId { get; set; }
         public DateTime MessageDate { get; set; }
 
     }

@@ -62,7 +62,7 @@ namespace WebhookMessengerPlatform.WebApi.Controllers
                     var signature = _service.CalculateSignature(json);
                     if(signature == signatureHeader)
                     {
-                        
+                        await _service.StoreData(data);
                     }
                 }
 

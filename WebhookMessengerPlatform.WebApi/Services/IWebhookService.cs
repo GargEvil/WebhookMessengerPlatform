@@ -8,5 +8,6 @@ namespace WebhookMessengerPlatform.WebApi.Services
     public interface IWebhookService
     {
          string CalculateSignature(string payload);
+         Task StoreData(dynamic data)
     }
 }
